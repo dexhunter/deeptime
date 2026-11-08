@@ -1,0 +1,68 @@
+[
+  {
+    "upstream_repo": "https://github.com/deeptime-ml/deeptime",
+    "head_sha": "ab34cae2066e127f77a665341ce61974bb5bc606",
+    "file": "src/deeptime/util/stats.py",
+    "function": "statistical_inefficiency",
+    "native_test_cmd": "python -m pytest tests/markov/tools/estimation/tests/test_effective_count_matrix.py -q --tb=short",
+    "baseline_median_ms": 60.462,
+    "tests_pass_on_baseline": true,
+    "bench_cmd": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 taskset -c 0 python osspr-intake/harness/bench.py statistical_inefficiency",
+    "baseline_noise_pct": 1.81
+  },
+  {
+    "upstream_repo": "https://github.com/deeptime-ml/deeptime",
+    "head_sha": "ab34cae2066e127f77a665341ce61974bb5bc606",
+    "file": "src/deeptime/markov/tools/estimation/sparse/effective_counts.py",
+    "function": "_split_sequences_singletraj",
+    "native_test_cmd": "python -m pytest tests/markov/tools/estimation/tests/test_effective_count_matrix.py -q --tb=short",
+    "baseline_median_ms": 275.003,
+    "tests_pass_on_baseline": true,
+    "bench_cmd": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 taskset -c 0 python osspr-intake/harness/bench.py split_sequences_singletraj",
+    "baseline_noise_pct": 3.82
+  },
+  {
+    "upstream_repo": "https://github.com/deeptime-ml/deeptime",
+    "head_sha": "ab34cae2066e127f77a665341ce61974bb5bc606",
+    "file": "src/deeptime/markov/tools/estimation/dense/covariance.py",
+    "function": "error_perturbation_cov",
+    "native_test_cmd": "python -m pytest tests/markov/tools/estimation/impl/dense/covariance_test.py -q --tb=short",
+    "baseline_median_ms": 74.476,
+    "tests_pass_on_baseline": true,
+    "bench_cmd": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 taskset -c 0 python osspr-intake/harness/bench.py error_perturbation_cov",
+    "baseline_noise_pct": 0.59
+  },
+  {
+    "upstream_repo": "https://github.com/deeptime-ml/deeptime",
+    "head_sha": "ab34cae2066e127f77a665341ce61974bb5bc606",
+    "file": "src/deeptime/util/diff.py",
+    "function": "finite_difference_operator_midpoints",
+    "native_test_cmd": "python -m pytest tests/util/test_diff.py -q --tb=short",
+    "baseline_median_ms": 402.64,
+    "tests_pass_on_baseline": true,
+    "bench_cmd": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 taskset -c 0 python osspr-intake/harness/bench.py finite_difference_operator_midpoints",
+    "baseline_noise_pct": 1.24
+  },
+  {
+    "upstream_repo": "https://github.com/deeptime-ml/deeptime",
+    "head_sha": "ab34cae2066e127f77a665341ce61974bb5bc606",
+    "file": "src/deeptime/kernels/_kernels.py",
+    "function": "PolynomialKernel.apply",
+    "native_test_cmd": "python -m pytest tests/kernels/test_kernels.py -q --tb=short",
+    "baseline_median_ms": 90.352,
+    "tests_pass_on_baseline": true,
+    "bench_cmd": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 taskset -c 0 python osspr-intake/harness/bench.py polynomial_kernel_apply",
+    "baseline_noise_pct": 1.03
+  },
+  {
+    "upstream_repo": "https://github.com/deeptime-ml/deeptime",
+    "head_sha": "ab34cae2066e127f77a665341ce61974bb5bc606",
+    "file": "src/deeptime/kernels/_base.py",
+    "function": "Kernel.apply",
+    "native_test_cmd": "python -m pytest tests/kernels/test_kernels.py -q --tb=short",
+    "baseline_median_ms": 94.633,
+    "tests_pass_on_baseline": true,
+    "bench_cmd": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 taskset -c 0 python osspr-intake/harness/bench.py kernel_apply",
+    "baseline_noise_pct": 1.31
+  }
+]
