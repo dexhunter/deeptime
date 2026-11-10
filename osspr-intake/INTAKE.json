@@ -1,0 +1,62 @@
+[
+  {
+    "upstream_repo": "https://github.com/deeptime-ml/deeptime",
+    "head_sha": "b1b7006ad3dbc502a305dc8f53d29d8a26d1ca2f",
+    "file": "src/deeptime/kernels/_kernels.py",
+    "function": "PolynomialKernel.apply",
+    "native_test_cmd": "python -m pytest tests/kernels/test_kernels.py -q --tb=short -k PolynomialKernel",
+    "tests_pass_on_baseline": true,
+    "metric_kind": "peak_memory_bytes",
+    "baseline_value": 191729664,
+    "baseline_noise_pct": 0.06409,
+    "metric_benchmark": "python osspr-intake/harness/peak_mem.py polynomial_kernel",
+    "labeled_data": null,
+    "why_hot": "apply expands the two 700x48 blocks and multiplies them, so ri * rj materializes a 700x700x48 float64 temporary (about 188 MB) and then reduces it. The returned Gram is only 700x700. The same scalar products are the matrix product data_1 @ data_2.T followed by the existing (c + s)**degree, which keeps the Gram the kernel tests compare at 5 decimals.",
+    "overlap_check": "Open upstream PRs on deeptime-ml/deeptime at intake (2026-11-10): only #274, which edits deeptime/decomposition/deep/_vampnet.py. It does not touch PolynomialKernel.apply. GeneralizedGaussianKernel.apply was not reused; a peak-memory card for it already exists."
+  },
+  {
+    "upstream_repo": "https://github.com/deeptime-ml/deeptime",
+    "head_sha": "b1b7006ad3dbc502a305dc8f53d29d8a26d1ca2f",
+    "file": "src/deeptime/covariance/util/_moments.py",
+    "function": "moments_XX",
+    "native_test_cmd": "python -m pytest tests/covariance/test_moments.py -q --tb=short",
+    "tests_pass_on_baseline": true,
+    "metric_kind": "peak_memory_bytes",
+    "baseline_value": 128475136,
+    "baseline_noise_pct": 0.012753,
+    "metric_benchmark": "python osspr-intake/harness/peak_mem.py moments_xx",
+    "labeled_data": null,
+    "why_hot": "On the weighted dense path the second-moment step computes np.dot((weights[:, None] * X).T, Y). That product allocates a full weighted copy of the 200000x80 frame block (128 MB) even though the returned moment is 80x80. Blocking the same weighted product over frame chunks keeps the moment the allclose checks in test_moments.py cover, without holding a second copy of the trajectory.",
+    "overlap_check": "Open upstream PRs on deeptime-ml/deeptime at intake (2026-11-10): only #274, which edits deeptime/decomposition/deep/_vampnet.py. It does not touch moments_XX or _M2_dense. The merged _M2_symmetric weight reuse does not cover this non-symmetric weighted product."
+  },
+  {
+    "upstream_repo": "https://github.com/deeptime-ml/deeptime",
+    "head_sha": "b1b7006ad3dbc502a305dc8f53d29d8a26d1ca2f",
+    "file": "src/deeptime/markov/tools/estimation/dense/covariance.py",
+    "function": "tmatrix_cov",
+    "native_test_cmd": "python -m pytest tests/markov/tools/estimation/impl/dense/covariance_test.py::TestCovariance::test_tmatrix_cov -q --tb=short",
+    "tests_pass_on_baseline": true,
+    "metric_kind": "peak_memory_bytes",
+    "baseline_value": 128647168,
+    "baseline_noise_pct": 0.101885,
+    "metric_benchmark": "python osspr-intake/harness/peak_mem.py tmatrix_cov",
+    "labeled_data": null,
+    "why_hot": "The full-tensor branch forms Z as an (M, M, M) broadcast product and then cov = Z / norm, so both tensors are resident. At M=200 that is two 64 MB blocks on top of the count matrix. Dividing Z in place and returning it is the same per-element covariance tensor that test_tmatrix_cov compares to the closed form, and it drops the second block.",
+    "overlap_check": "Open upstream PRs on deeptime-ml/deeptime at intake (2026-11-10): only #274, which edits deeptime/decomposition/deep/_vampnet.py. It does not touch tmatrix_cov. The merged closed-form error_perturbation path no longer builds this tensor, but tmatrix_cov itself still returns it."
+  },
+  {
+    "upstream_repo": "https://github.com/deeptime-ml/deeptime",
+    "head_sha": "b1b7006ad3dbc502a305dc8f53d29d8a26d1ca2f",
+    "file": "src/deeptime/markov/tools/analysis/dense/_correlations.py",
+    "function": "time_correlation_direct_by_mtx_vec_prod",
+    "native_test_cmd": "python -m pytest tests/markov/tools/analysis/impl/dense/correlations_test.py -q --tb=short",
+    "tests_pass_on_baseline": true,
+    "metric_kind": "allocations",
+    "baseline_value": 2501,
+    "baseline_noise_pct": 0.0,
+    "metric_benchmark": "python osspr-intake/harness/allocs.py",
+    "labeled_data": null,
+    "why_hot": "A 2500-step correlation does l = obs1 * mu and then P_i_obs = np.dot(P, P_i_obs) on every remaining step. Each product mallocs a new length-1500 vector; the counter of mallocs at least 8192 bytes is 2501 and matches that multiply plus each gemv. Writing each gemv into one reused buffer is the same matrix-vector product, so the scalar correlation checked by correlations_test.py stays the same while the per-step allocations go away.",
+    "overlap_check": "Open upstream PRs on deeptime-ml/deeptime at intake (2026-11-10): only #274, which edits deeptime/decomposition/deep/_vampnet.py. It does not touch time_correlation_direct_by_mtx_vec_prod or the dense correlation module."
+  }
+]
