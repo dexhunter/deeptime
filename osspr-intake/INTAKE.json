@@ -1,0 +1,50 @@
+[
+  {
+    "upstream_repo": "deeptime-ml/deeptime",
+    "head_sha": "59cfe0f0f366544e5e7d47c152e8da7a762842dd",
+    "file": "src/deeptime/markov/tools/flux/api.py",
+    "function": "deeptime.markov.tools.flux.api.coarsegrain",
+    "native_test_cmd": "python3 -m pytest tests/markov/tools/flux/test_reactive_flux.py tests/markov/test_reactive_flux.py -q --tb=short",
+    "bench_cmd": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 python3 osspr-intake/harness/bench_flux_coarsegrain.py",
+    "baseline_median_ms": 28.728,
+    "baseline_noise_pct": 1.14,
+    "tests_pass_on_baseline": true,
+    "why": "TPT coarse-grains a flux by summing every pair of sets in a Python loop with fancy indexing. A 900-state gross flux into 60 sets of 15 microstates takes 28.7 ms. One set-membership product replaces those block copies, so a 20%+ cut is realistic and the sums stay the same up to rounding."
+  },
+  {
+    "upstream_repo": "deeptime-ml/deeptime",
+    "head_sha": "59cfe0f0f366544e5e7d47c152e8da7a762842dd",
+    "file": "src/deeptime/markov/tools/flux/pathways.py",
+    "function": "deeptime.markov.tools.flux.pathways.pathways",
+    "native_test_cmd": "python3 -m pytest tests/markov/tools/flux/test_reactive_flux.py tests/markov/test_reactive_flux.py -q --tb=short",
+    "bench_cmd": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 python3 osspr-intake/harness/bench_flux_pathways.py",
+    "baseline_median_ms": 64.156,
+    "baseline_noise_pct": 0.71,
+    "tests_pass_on_baseline": true,
+    "why": "Pathway decomposition of the net flux on a 10x10 grid (half the flux, at most 30 paths) spends 64.2 ms rebuilding a COO matrix and running a fresh BFS on every bottleneck bisection, then converting the network to DOK to read or subtract each edge. Keeping one CSR and searching a thresholded graph should be substantially faster with the same paths."
+  },
+  {
+    "upstream_repo": "deeptime-ml/deeptime",
+    "head_sha": "59cfe0f0f366544e5e7d47c152e8da7a762842dd",
+    "file": "src/deeptime/util/stats.py",
+    "function": "deeptime.util.stats.confidence_interval",
+    "native_test_cmd": "python3 -m pytest tests/base/test_base_utils.py tests/util/test_stats.py -q --tb=short",
+    "bench_cmd": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 python3 osspr-intake/harness/bench_confidence_interval.py",
+    "baseline_median_ms": 138.117,
+    "baseline_noise_pct": 2.25,
+    "tests_pass_on_baseline": true,
+    "why": "Bayesian summaries pass a stack of samples here. For 80 draws of a 60x60 observable the implementation walks every column in Python and sorts it, which takes 138 ms. Sorting once along the sample axis and interpolating the same interval bounds removes that loop without changing the intervals."
+  },
+  {
+    "upstream_repo": "deeptime-ml/deeptime",
+    "head_sha": "59cfe0f0f366544e5e7d47c152e8da7a762842dd",
+    "file": "src/deeptime/util/data.py",
+    "function": "deeptime.util.data.sliding_window",
+    "native_test_cmd": "python3 -m pytest tests/util/test_data.py -q --tb=short",
+    "bench_cmd": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 python3 osspr-intake/harness/bench_sliding_window.py",
+    "baseline_median_ms": 82.503,
+    "baseline_noise_pct": 2.24,
+    "tests_pass_on_baseline": true,
+    "why": "Scanning a 120000-frame trajectory with radius 3 builds a new ndarray from a deque on every frame and takes 82.5 ms. A single strided window (or one reused buffer) yields the same window values without that per-frame copy."
+  }
+]
